@@ -7,7 +7,6 @@ import Halogen.VDom.Driver (runUI)
 
 import Component (component)
 
-main :: Eff (HA.HalogenEffects ()) Unit
 main = HA.runHalogenAff do
   body <- HA.awaitBody
   runUI component unit body
