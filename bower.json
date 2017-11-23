@@ -1,6 +1,6 @@
 {
-  "private": false,
   "name": "purescript-halogen-calendar-datepicker",
+  "description": "This halogen widget lets you pick a date by clicking a calendar or through text fields",
   "ignore": [
     "**/.*",
     "node_modules",
@@ -12,5 +12,13 @@
     "purescript-console": "^3.0.0",
     "purescript-halogen": "^2.0.0",
     "purescript-datetime": "^3.4.1"
-  }
+  },
+  "keywords": [
+    "halogen",
+    "purescript",
+    "calendar",
+    "date",
+    "datepicker"
+  ],
+  "private": false
 }
