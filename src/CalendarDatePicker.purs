@@ -1,4 +1,4 @@
-module Calendar 
+module Halogen.CalendarDatePicker 
   ( calendar
   , Message
   , Query
