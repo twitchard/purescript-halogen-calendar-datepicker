@@ -1,13 +1,14 @@
-module Component where
+module Calendar 
+  ( calendar
+  , Message
+  , Query
+  )
+where
 
 import Prelude
 
 import Control.Monad.Aff (Aff)
-import Control.Monad.Aff.AVar (AVAR)
-import Control.Monad.Aff.Console (CONSOLE)
 import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Exception (EXCEPTION)
-import Control.Monad.Eff.Ref (REF)
 import DOM (DOM)
 import Data.Array (cons, range, replicate)
 import Data.Date (Date, Month(..), Year, canonicalDate, day, exactDate, lastDayOfMonth, month, weekday, year)
@@ -31,6 +32,8 @@ data Query a
   | ChangeStagedMonth String a
   | EnterDay String a
   | EnterYear String a
+
+data Message = DateSelected Date
 
 type State =
   { selectedDate :: Maybe Date
@@ -56,8 +59,8 @@ monthCells y m =
         beginPad = mod 7 $ fromEnum $ weekday $ canonicalDate y m bottom 
         endPad   = 35 - n - beginPad
 
-component :: H.Component HH.HTML Query Unit Void (Aff (dom :: DOM, ref :: REF, avar :: AVAR, exception :: EXCEPTION, console :: CONSOLE))
-component =
+calendar :: ∀ e. H.Component HH.HTML Query Unit Message (Aff (dom :: DOM | e))
+calendar =
   H.component
     { initialState: const initialState
     , render
@@ -148,7 +151,7 @@ component =
           [ HH.text $ show n ]
           where isSelected n = exactDate state.currentPage.year state.currentPage.month (fromMaybe bottom $ toEnum n) == state.selectedDate
 
-  eval :: Query ~> H.ComponentDSL State Query Void (Aff ( console :: CONSOLE , dom :: DOM, ref :: REF, avar :: AVAR, exception :: EXCEPTION))
+  eval :: ∀ eff. Query ~> H.ComponentDSL State Query Message (Aff (dom :: DOM | eff))
   eval = case _ of
     SwitchMonth s next → do
        H.modify (\state →
@@ -159,25 +162,20 @@ component =
        pure next
 
     SelectDay n next -> do
-      H.modify (\state →
-        let
-          day = fromMaybe bottom $ toEnum n
+      state <- H.get
+      let day = fromMaybe bottom $ toEnum n
           month = state.currentPage.month
           year = state.currentPage.year
-        in
-          state
-          { selectedDate =
-            exactDate
-              year
-              month
-              day
-          , stagedDate = 
+          selectedDate = exactDate year month day
+          stagedDate =
             { year : show $ fromEnum year
             , month : show $ fromEnum month
             , day : show $ fromEnum day
             }
-          }
-      )
+      H.put state { selectedDate = selectedDate, stagedDate = stagedDate }
+      case selectedDate of
+        Nothing → pure unit
+        Just d → H.raise $ DateSelected d
       pure next
 
     PrevYear next → do
@@ -230,6 +228,3 @@ component =
         y <- fromString stage.year >>= toEnum
         d <- fromString stage.day >>= toEnum
         exactDate y m d
-
-
-
