@@ -20,5 +20,6 @@
     "date",
     "datepicker"
   ],
-  "private": false
+  "private": false,
+  "license": "MIT"
 }
