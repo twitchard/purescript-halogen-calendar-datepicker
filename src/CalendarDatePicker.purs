@@ -59,20 +59,22 @@ monthCells y m =
         beginPad = mod 7 $ fromEnum $ weekday $ canonicalDate y m bottom 
         endPad   = 35 - n - beginPad
 
-calendar :: ∀ e. H.Component HH.HTML Query Unit Message (Aff (dom :: DOM | e))
+type Input = { initialYear :: Year, initialMonth :: Month }
+
+calendar :: ∀ e. H.Component HH.HTML Query Input Message (Aff (dom :: DOM | e))
 calendar =
   H.component
-    { initialState: const initialState
+    { initialState: initialState
     , render
     , eval
     , receiver: const Nothing
     }
   where
 
-  initialState :: State
-  initialState =
+  initialState :: Input → State
+  initialState inp =
     { selectedDate : Nothing
-    , currentPage : { year : fromMaybe bottom $ toEnum 2017, month : November }
+    , currentPage : { year : inp.initialYear, month : inp.initialMonth }
     , stagedDate : { month : "", day : "", year : "" }
     }
 
