@@ -1,6 +1,6 @@
 module Halogen.CalendarDatePicker 
   ( calendar
-  , Message
+  , Message (..)
   , Query
   )
 where
